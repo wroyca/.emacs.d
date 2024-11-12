@@ -35,6 +35,7 @@ This document describes my GNU Emacs configuration. You may use =C-c C-v t= to t
 * Packages
 ** Elpaca
 
+* Packages
 #+begin_src emacs-lisp :tangle "init.el"
 (defvar elpaca-installer-version 0.8)
 (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
@@ -74,12 +75,40 @@ This document describes my GNU Emacs configuration. You may use =C-c C-v t= to t
     (load "./elpaca-autoloads")))
 (add-hook 'after-init-hook #'elpaca-process-queues)
 (elpaca `(,@elpaca-order))
+#+end_src
+
+** Leaf
+
+#+begin_src emacs-lisp :tangle "init.el" :noweb yes
 (elpaca leaf)
+
+<<leaf-keywords>>
+<<leaf-tree>>
+<<leaf-convert>>
+
+(elpaca-wait)
+#+end_src
+
+*** Leaf Keywords
+
+#+name: leaf-keywords
+#+begin_src emacs-lisp :tangle no
 (elpaca leaf-keywords
   (leaf-keywords-init))
+#+end_src
+
+*** Leaf Tree
+
+#+name: leaf-tree
+#+begin_src emacs-lisp :tangle no
 (elpaca leaf-tree)
+#+end_src
+
+*** Leaf Convert
+
+#+name: leaf-convert
+#+begin_src emacs-lisp :tangle no
 (elpaca leaf-convert)
-(elpaca-wait)
 #+end_src
 
 ** Meow
