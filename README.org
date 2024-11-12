@@ -23,7 +23,40 @@ This document describes my GNU Emacs configuration. You may use =C-c C-v t= to t
 (push '(menu-bar-lines . 0) default-frame-alist)
 (push '(tool-bar-lines . 0) default-frame-alist)
 
-(load-theme 'modus-operandi)
+(require 'dbus)
+
+(defun parse-color-scheme (line)
+  (when (string-match "uint32 \\([0-9]+\\)" line)
+    (let ((v (string-to-number (match-string 1 line))))
+      (if (or (= v 2) (= v 0))
+          (progn
+            (set-frame-parameter nil 'background-mode 'light)
+            (load-theme 'modus-operandi-tinted))
+        (progn
+          (set-frame-parameter nil 'background-mode 'dark)
+          (load-theme 'modus-vivendi-tinted)))
+      (frame-set-background-mode nil))))
+
+(defun setup-appearance-sync ()
+  (let ((process
+         (start-process
+          "appearance-monitor" "*appearance-monitor*"
+          "dbus-monitor"
+          "--session"
+          "type='signal',interface='org.freedesktop.portal.Settings'")))
+    (set-process-filter
+     process
+     (lambda (_proc output)
+       (when (string-match "color-scheme" output)
+         (parse-color-scheme output)))))
+  (parse-color-scheme
+   (shell-command-to-string
+    "gdbus call --session --dest=org.freedesktop.portal.Desktop \
+--object-path=/org/freedesktop/portal/desktop \
+--method=org.freedesktop.portal.Settings.Read \
+org.freedesktop.appearance color-scheme")))
+
+(setup-appearance-sync)
 #+end_src
 
 * Initialization
@@ -808,3 +841,4 @@ otherwise returns nil."
               "11;rgb:\\([a-f0-9]+\\)/\\([a-f0-9]+\\)/\\([a-f0-9]+\\)" response)
         response))))
 #+end_src
+
