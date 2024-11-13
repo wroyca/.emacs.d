@@ -128,13 +128,17 @@ the dark mode preference changes.
 ** Leaf
 
 #+begin_src emacs-lisp :tangle "init.el" :noweb yes
-(elpaca leaf)
-
+<<leaf>>
 <<leaf-keywords>>
 <<leaf-tree>>
 <<leaf-convert>>
 
 (elpaca-wait)
+#+end_src
+
+#+name: leaf
+#+begin_src emacs-lisp :tangle no
+(elpaca leaf)
 #+end_src
 
 *** Leaf Keywords
@@ -573,7 +577,9 @@ the dark mode preference changes.
 
 * Language Server Protocol
 
-Due to its inherent complexity, I treat Language Server Protocol (LSP) setup as its own distinct section, even though it still involves various packages.
+Due to its inherent complexity, I treat Language Server Protocol (LSP)
+setup as its own distinct section, even though it still involves
+various packages.
 
 #+begin_src emacs-lisp :tangle "init.el" :noweb yes
 (leaf *language-server-protocol
@@ -665,7 +671,9 @@ Built-in packages come bundled with the default Emacs installation.
       <<contextmenu>>
       <<editorconfig>>
       <<xterm>>
-      <<compilationshell>>)
+      <<compilationshell>>
+      <<indenttabs>>
+      <<followsymlink>>)
 #+end_src
 
 ** Save History
@@ -755,7 +763,7 @@ Built-in packages come bundled with the default Emacs installation.
 #+name: xterm
 #+begin_src emacs-lisp :tangle no
 (leaf xterm-mouse
-      :doc "support the mouse when emacs run in an xterm"
+      :doc "Support the mouse when emacs run in an xterm"
       :url "https://github.com/emacs-mirror/emacs/blob/master/lisp/xt-mouse.el"
       :global-minor-mode xterm-mouse
       :custom ((scroll-conservatively . 101)
@@ -773,6 +781,25 @@ Built-in packages come bundled with the default Emacs installation.
       :doc "Compilation shell minor mode"
       :url "https://github.com/emacs-mirror/emacs/blob/master/lisp/progmodes/compile.el"
       :hook ((compilation-mode . compilation-shell-minor-mode)))
+#+end_src
+
+** Intend with spaces by default
+#+name: indenttabs
+#+begin_src emacs-lisp :tangle no
+(leaf indent-tabs
+      :doc "Prevent Extraneous Tabs"
+      :url "https://www.gnu.org/software/emacs/manual/html_node/eintr/Indent-Tabs-Mode.html"
+      :setq-default (indent-tabs-mode . nil))
+#+end_src
+
+** Follow Symlinks
+#+name: followsymlink
+#+begin_src emacs-lisp :tangle no
+(leaf indent-tabs
+      :doc "Automatically visit symlink sources"
+      :url "https://www.gnu.org/software/emacs/manual/html_node/emacs/File-Aliases.html"
+      :setq ((find-file-visit-truename . t)
+	     (vc-follow-symlinks . t)))
 #+end_src
 
 * Volatile
@@ -805,15 +832,20 @@ Here we advise [[elisp:(describe-symbol 'load-theme)][load-theme]] to send an AN
 https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h3-Operating-System-Commands
 
 #+begin_src emacs-lisp :tangle "early-init.el"
-  (defun dotemacs//xterm-change-text-background (&rest _args)
-    (send-string-to-terminal
-     (format "\e]11;%s\a" (frame-parameter nil 'background-color))))
+(defun dotemacs//xterm-change-text-background (&rest _args)
+  ;; BUG: Emacs doesn't handle some colors properly. For example, a
+  ;; black background might be sent as a slightly lighter shade of black.
+  ;; One workaround is to catch the black color and set it explicitly, e.g.:
+  ;;    `(set-face-background 'default "color-16")'
+  ;; However, this brings its own set of problems.
+  (send-string-to-terminal
+   (format "\e]11;%s\a" (frame-parameter nil 'background-color))))
 
-  (advice-add #'load-theme :after #'dotemacs//xterm-change-text-background)
-  (advice-add #'consult-theme :after #'dotemacs//xterm-change-text-background)
+(advice-add #'load-theme    :after #'dotemacs//xterm-change-text-background)
+(advice-add #'consult-theme :after #'dotemacs//xterm-change-text-background)
+(add-hook    'resume-tty-functions #'dotemacs//xterm-change-text-background)
 
-  (add-hook 'resume-tty-functions #'dotemacs//xterm-change-text-background)
-  (dotemacs//xterm-change-text-background)
+(dotemacs//xterm-change-text-background)
 #+end_src
 
 Dynamic colors can also be reset to their default.
@@ -832,11 +864,11 @@ Dynamic colors can also be reset to their default.
 | Ps = 1 1 9               | Reset highlight foreground color.  |
 
 #+begin_src emacs-lisp :tangle "early-init.el"
-  (defun dotemacs//xterm-reset-text-background (&rest _args)
-    (send-string-to-terminal "\e]111;\a"))
+(defun dotemacs//xterm-reset-text-background (&rest _args)
+  (send-string-to-terminal "\e]111;\a"))
 
-  (add-hook 'kill-emacs-hook #'dotemacs//xterm-reset-text-background)
-  (add-hook 'suspend-tty-functions #'dotemacs//xterm-reset-text-background)
+(add-hook 'kill-emacs-hook       #'dotemacs//xterm-reset-text-background)
+(add-hook 'suspend-tty-functions #'dotemacs//xterm-reset-text-background)
 #+end_src
 
 If necessary, OSC compatibility can be tested as follows:
@@ -856,4 +888,3 @@ otherwise returns nil."
               "11;rgb:\\([a-f0-9]+\\)/\\([a-f0-9]+\\)/\\([a-f0-9]+\\)" response)
         response))))
 #+end_src
-
