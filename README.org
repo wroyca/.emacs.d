@@ -83,7 +83,6 @@ the dark mode preference changes.
 * Packages
 ** Elpaca
 
-* Packages
 #+begin_src emacs-lisp :tangle "init.el"
 (defvar elpaca-installer-version 0.8)
 (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
@@ -132,20 +131,18 @@ the dark mode preference changes.
 <<leaf-keywords>>
 <<leaf-tree>>
 <<leaf-convert>>
-
-(elpaca-wait)
 #+end_src
 
 #+name: leaf
 #+begin_src emacs-lisp :tangle no
-(elpaca leaf)
+(elpaca (leaf :wait t))
 #+end_src
 
 *** Leaf Keywords
 
 #+name: leaf-keywords
 #+begin_src emacs-lisp :tangle no
-(elpaca leaf-keywords
+(elpaca (leaf-keywords :wait t)
   (leaf-keywords-init))
 #+end_src
 
@@ -153,14 +150,14 @@ the dark mode preference changes.
 
 #+name: leaf-tree
 #+begin_src emacs-lisp :tangle no
-(elpaca leaf-tree)
+(elpaca (leaf-tree :wait t))
 #+end_src
 
 *** Leaf Convert
 
 #+name: leaf-convert
 #+begin_src emacs-lisp :tangle no
-(elpaca leaf-convert)
+(elpaca (leaf-convert :wait t))
 #+end_src
 
 ** Meow
