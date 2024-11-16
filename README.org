@@ -78,6 +78,15 @@ the dark mode preference changes.
 
 #+begin_src emacs-lisp :tangle "init.el"
 ;; init.el --- -*- lexical-binding: t -*-
+
+;; TODO: Handle builtin better.
+(setq-default confirm-kill-processes nil
+              create-lockfiles nil
+              make-backup-files nil)
+
+;; TODO: hook orgmode?
+(setq org-src-preserve-indentation nil
+      org-edit-src-content-indentation 0)
 #+end_src
 
 * Packages
@@ -571,7 +580,6 @@ the dark mode preference changes.
       :elpaca t
       :global-minor-mode t)
 #+end_src
-
 
 * Language Server Protocol
 
